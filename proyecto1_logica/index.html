@@ -1,0 +1,1668 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Investigación de Incidentes - Lógica Proposicional</title>
+  <style>
+    :root {
+      --bg-main: #0f172a;
+      --bg-card: #1e293b;
+      --bg-card-sub: #334155;
+      --border: #475569;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --success: #22c55e;
+      --success-bg: rgba(34, 197, 94, 0.15);
+      --warning: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.15);
+      --danger: #ef4444;
+      --danger-bg: rgba(239, 68, 68, 0.15);
+      --purple: #a855f7;
+      --purple-bg: rgba(168, 85, 247, 0.15);
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --radius: 10px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.5;
+      padding: 24px;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1250px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+    }
+
+    .title-group h1 {
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .title-group p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-top: 4px;
+    }
+
+    .badge-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      border: 1px solid transparent;
+    }
+
+    .badge-success { background: var(--success-bg); color: #4ade80; border-color: rgba(74, 222, 128, 0.3); }
+    .badge-warning { background: var(--warning-bg); color: #fbbf24; border-color: rgba(251, 191, 36, 0.3); }
+    .badge-danger { background: var(--danger-bg); color: #f87171; border-color: rgba(248, 113, 113, 0.3); }
+    .badge-accent { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border-color: rgba(56, 189, 248, 0.3); }
+    .badge-purple { background: var(--purple-bg); color: #c084fc; border-color: rgba(192, 132, 252, 0.3); }
+
+    /* MENU DE CASOS QUEMADOS */
+    .menu-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .menu-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .menu-header h2 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .case-selector {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .case-btn {
+      background: var(--bg-card-sub);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 14px 16px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .case-btn:hover {
+      border-color: var(--accent);
+      background: #3b4d66;
+    }
+
+    .case-btn.active {
+      border-color: var(--accent);
+      background: rgba(56, 189, 248, 0.12);
+      box-shadow: 0 0 0 2px var(--accent);
+    }
+
+    .case-btn-title {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #fff;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .case-btn-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.3;
+    }
+
+    /* GRID CONTENIDO */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    .card-header h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    input[type="text"], select {
+      background: var(--bg-main);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 9px 12px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 100%;
+    }
+
+    input[type="text"]:focus, select:focus {
+      border-color: var(--accent);
+    }
+
+    .btn {
+      background: var(--accent);
+      color: #042f2e;
+      font-weight: 600;
+      border: none;
+      padding: 9px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      white-space: nowrap;
+    }
+
+    .btn:hover { background: var(--accent-hover); color: #fff; }
+
+    .btn-secondary {
+      background: var(--bg-card-sub);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-secondary:hover { background: #475569; }
+
+    .btn-probar {
+      background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+      color: #042f2e;
+      font-weight: 700;
+      font-size: 0.95rem;
+      padding: 10px 22px;
+      box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+    }
+    .btn-probar:hover {
+      box-shadow: 0 6px 16px rgba(56, 189, 248, 0.45);
+      transform: translateY(-1px);
+      color: #fff;
+    }
+
+    /* EVIDENCIA CHIPS */
+    .chips-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    .chip {
+      background: var(--bg-card-sub);
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-family: var(--font-mono);
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.2s;
+    }
+
+    .chip.active {
+      background: var(--accent);
+      color: #0f172a;
+      border-color: var(--accent);
+      font-weight: 700;
+    }
+
+    /* TABLAS */
+    .table-wrapper {
+      max-height: 380px;
+      overflow-y: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg-main);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 8px 12px;
+      border-bottom: 1px solid rgba(71, 85, 105, 0.4);
+    }
+
+    th {
+      background: var(--bg-card-sub);
+      color: #fff;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .mono { font-family: var(--font-mono); }
+    .val-box {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      line-height: 20px;
+      text-align: center;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      font-weight: bold;
+    }
+    .box-1 { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+    .box-0 { background: rgba(148, 163, 184, 0.15); color: #64748b; }
+
+    /* VEREDICTO FINAL CARD */
+    .veredicto-card {
+      border-radius: var(--radius);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+      overflow: hidden;
+      border-width: 2px;
+      border-style: solid;
+      box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.5);
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    .veredicto-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+    }
+
+    .veredicto-culpable {
+      background: linear-gradient(180deg, rgba(34, 197, 94, 0.15) 0%, rgba(30, 41, 59, 0.95) 100%);
+      border-color: var(--success);
+    }
+    .veredicto-culpable::before { background: var(--success); }
+
+    .veredicto-multiples {
+      background: linear-gradient(180deg, rgba(245, 158, 11, 0.15) 0%, rgba(30, 41, 59, 0.95) 100%);
+      border-color: var(--warning);
+    }
+    .veredicto-multiples::before { background: var(--warning); }
+
+    .veredicto-contradiccion {
+      background: linear-gradient(180deg, rgba(239, 68, 68, 0.18) 0%, rgba(30, 41, 59, 0.95) 100%);
+      border-color: var(--danger);
+    }
+    .veredicto-contradiccion::before { background: var(--danger); }
+
+    .veredicto-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .veredicto-header h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .veredicto-body {
+      font-size: 1.05rem;
+      line-height: 1.6;
+    }
+
+    .veredicto-highlight {
+      background: var(--bg-card-sub);
+      border-left: 4px solid var(--accent);
+      padding: 12px 16px;
+      border-radius: 0 6px 6px 0;
+      font-family: var(--font-mono);
+      margin: 10px 0;
+    }
+
+    .step-vacia {
+      background: rgba(239, 68, 68, 0.2);
+      border-color: var(--danger);
+      color: #fca5a5;
+      font-weight: bold;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- HEADER PRINCIPAL -->
+  <header>
+    <div class="title-group">
+      <h1>🔍 Investigación Forense con Lógica Proposicional</h1>
+      <p>Resolución formal por Enumeración de Modelos y Refutación por Cláusula Vacía (□)</p>
+    </div>
+    <div class="badge-bar">
+      <span class="badge badge-accent" id="badge-variables">8 Variables</span>
+      <span class="badge badge-purple" id="badge-clausulas">14 Cláusulas CNF</span>
+      <span class="badge badge-warning" id="badge-consistencia">Esperando consulta</span>
+    </div>
+  </header>
+
+  <!-- CASOS DE PRUEBA CARGADOS DESDE JSON -->
+  <div class="menu-card">
+    <div class="menu-header">
+      <h2>📋 Casos de prueba cargados desde JSON</h2>
+      <button class="btn btn-secondary" onclick="restablecerBaseOriginal()">🔄 Restablecer Base Original</button>
+    </div>
+    <div class="case-selector" id="case-selector">
+      <div class="case-btn"><div class="case-btn-title"><span>Cargando archivos JSON…</span></div></div>
+    </div>
+  </div>
+
+  <!-- PANEL DE GESTIÓN DINÁMICA Y EVIDENCIA/CONSULTAS ACTIVAS -->
+  <div class="grid-2">
+    <!-- GESTIÓN DINÁMICA DE LA BASE DE CONOCIMIENTO -->
+    <div class="card">
+      <div class="card-header">
+        <h3>⚙️ Gestión Dinámica de la Base de Conocimiento</h3>
+        <button class="btn btn-secondary" style="font-size: 0.75rem;" onclick="validarConsistenciaClick()">🧪 Validar Consistencia</button>
+      </div>
+
+      <!-- Formulario Sospechoso -->
+      <div style="background: var(--bg-main); padding: 14px; border-radius: 8px; border: 1px solid var(--border);">
+        <h4 style="font-size: 0.9rem; margin-bottom: 8px; color: var(--accent);">👤 Añadir Nuevo Sospechoso</h4>
+        <div class="form-row">
+          <input type="text" id="input-sospechoso-var" placeholder="Letra (ej: G)" style="max-width: 90px;" maxlength="4">
+          <input type="text" id="input-sospechoso-nombre" placeholder="Nombre (ej: Gabriel)">
+          <button class="btn" onclick="agregarSospechosoClick()">➕ Añadir</button>
+        </div>
+        <label style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px; display: flex; align-items: center; gap: 6px; cursor: pointer;">
+          <input type="checkbox" id="check-actualizar-e1-e2" checked>
+          Actualizar automáticamente E1 (al menos uno) y E2 (a lo sumo uno)
+        </label>
+      </div>
+
+      <!-- Formulario Regla -->
+      <div style="background: var(--bg-main); padding: 14px; border-radius: 8px; border: 1px solid var(--border);">
+        <h4 style="font-size: 0.9rem; margin-bottom: 8px; color: var(--accent);">📜 Añadir Nueva Regla Proposicional</h4>
+        <div class="form-row" style="margin-bottom: 6px;">
+          <input type="text" id="input-regla-id" placeholder="ID (ej: R9)" style="max-width: 90px;">
+          <input type="text" id="input-regla-desc" placeholder="Descripción (ej: Gabriel tenía la llave)">
+        </div>
+        <div class="form-row">
+          <input type="text" id="input-regla-formula" placeholder="Fórmula: ej: G -> K  o  ~K | G" class="mono">
+          <button class="btn" onclick="agregarReglaClick()">➕ Añadir</button>
+        </div>
+        <input type="text" id="input-regla-significados" placeholder="Significados opcionales: X=La puerta estaba abierta; Y=Había una cámara" style="margin-top: 6px;" class="mono">
+        <div style="display: flex; gap: 6px; margin-top: 6px;">
+          <span style="font-size: 0.75rem; color: var(--text-muted);">Símbolos rápidos:</span>
+          <button class="chip" onclick="insertarSimbolo('~')">~</button>
+          <button class="chip" onclick="insertarSimbolo('&')">&</button>
+          <button class="chip" onclick="insertarSimbolo('|')">|</button>
+          <button class="chip" onclick="insertarSimbolo('->')">-&gt;</button>
+          <button class="chip" onclick="insertarSimbolo('<->')">&lt;-&gt;</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- EVIDENCIA Y CONSULTAS ACTIVAS -->
+    <div class="card">
+      <div class="card-header">
+        <h3>🔍 Evidencia y Consultas Activas</h3>
+        <span id="evidencia-resumen" class="badge badge-accent">Evidencia: ninguna</span>
+      </div>
+
+      <div>
+        <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Activar / Desactivar Evidencia:</label>
+        <div class="chips-container" id="evidencia-chips"></div>
+      </div>
+
+      <div style="margin-top: 8px;">
+        <label style="font-size: 0.85rem; font-weight: 600; color: var(--text-muted);">Evidencia personalizada (literales separados por coma):</label>
+        <div class="form-row" style="margin-top: 4px;">
+          <input type="text" id="input-evidencia-custom" placeholder="ej: A, AD, ~K" class="mono">
+          <button class="btn btn-secondary" onclick="aplicarEvidenciaCustom()">Aplicar</button>
+        </div>
+      </div>
+
+      <!-- SELECCIÓN Y BOTÓN PROBAR -->
+      <div style="margin-top: 12px; background: var(--bg-main); padding: 14px; border-radius: 8px; border: 1px solid var(--border);">
+        <label style="font-size: 0.85rem; font-weight: 600; color: var(--accent);">🎯 Consulta a evaluar e inferir:</label>
+        <div class="form-row" style="margin-top: 6px;">
+          <select id="select-consulta" onchange="seleccionarConsultaDeSelect()" style="max-width: 170px;"></select>
+          <input type="text" id="input-consulta-custom" placeholder="o escribe: D, ~N -> E, E | F" class="mono">
+          <button class="btn btn-probar" id="btn-probar" onclick="ejecutarConsulta()">▶ Probar</button>
+        </div>
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 6px;">
+          Haga clic en <strong>▶ Probar</strong> para calcular la resolución por enumeración, refutación proposicional y mostrar un resultado adaptado al tipo de consulta.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- DICCIONARIO Y REGLAS DE LA BASE ACTIVA -->
+  <div class="card">
+    <div class="card-header">
+      <h3>📚 Diccionario y reglas de la base activa</h3>
+      <span class="badge badge-purple" id="badge-extensiones">0 extensiones</span>
+    </div>
+    <div class="grid-2">
+      <div>
+        <h4 style="font-size: 0.9rem; margin-bottom: 8px; color: var(--text-muted);">Significado de variables</h4>
+        <div class="table-wrapper" style="max-height: 360px;">
+          <table>
+            <thead><tr><th>Variable</th><th>Significado</th><th>Origen</th></tr></thead>
+            <tbody id="tabla-variables"></tbody>
+          </table>
+        </div>
+      </div>
+      <div>
+        <h4 style="font-size: 0.9rem; margin-bottom: 8px; color: var(--text-muted);">Enunciados y fórmulas</h4>
+        <div class="table-wrapper" style="max-height: 360px;">
+          <table>
+            <thead><tr><th>ID</th><th>Enunciado / fórmula</th><th>Origen</th></tr></thead>
+            <tbody id="tabla-reglas"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN RESOLUCIÓN POR ENUMERACIÓN (SOLO VISIBLE AL CONSULTAR) -->
+  <div class="card" id="seccion-enumeracion" style="display: none;">
+    <div class="card-header">
+      <h3>📊 1. Resolución por Enumeración de Modelos</h3>
+      <div style="display: flex; gap: 10px; align-items: center;">
+        <label style="font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+          <input type="checkbox" id="check-solo-compatibles" checked onchange="renderizarEnumeracion()">
+          Solo modelos compatibles
+        </label>
+        <span class="badge badge-accent" id="enum-stats">Calculando modelos...</span>
+      </div>
+    </div>
+
+    <!-- Resultados de Consultas por Enumeración -->
+    <div>
+      <h4 style="font-size: 0.9rem; margin-bottom: 8px; color: var(--text-muted);">Clasificación de Enunciados en los Modelos Compatibles:</h4>
+      <div id="enum-consultas-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px;"></div>
+    </div>
+
+    <!-- Tabla de Modelos -->
+    <div class="table-wrapper">
+      <table id="tabla-modelos">
+        <thead>
+          <tr id="tabla-modelos-head"></tr>
+        </thead>
+        <tbody id="tabla-modelos-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SECCIÓN RESOLUCIÓN POR REFUTACIÓN (SOLO VISIBLE AL CONSULTAR) -->
+  <div class="card" id="seccion-refutacion" style="display: none;">
+    <div class="card-header">
+      <h3>⚡ 2. Resolución Proposicional por Refutación (Saturación y Cláusula Vacía □)</h3>
+      <span class="badge" id="refutacion-resultado-badge">Calculando...</span>
+    </div>
+
+    <div class="grid-2">
+      <!-- Cláusulas Iniciales -->
+      <div>
+        <h4 style="font-size: 0.9rem; margin-bottom: 8px; color: var(--text-muted);">Cláusulas Iniciales (Base + Evidencia + Negación de la Consulta):</h4>
+        <div class="table-wrapper" style="max-height: 280px;">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 50px;">ID</th>
+                <th>Cláusula FNC</th>
+                <th>Origen</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-clausulas-iniciales"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Pasos de Deducción -->
+      <div>
+        <h4 style="font-size: 0.9rem; margin-bottom: 8px; color: var(--text-muted);">Pasos de Derivación (Pivote y Resolventes):</h4>
+        <div class="table-wrapper" style="max-height: 280px;">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 50px;">Paso</th>
+                <th>Padres</th>
+                <th>Pivote</th>
+                <th>Resolvente Derivado</th>
+              </tr>
+            </thead>
+            <tbody id="tabla-pasos-resolucion"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PANEL DE VEREDICTO FINAL / CULPABLE (SOLO VISIBLE AL CONSULTAR) -->
+  <div class="veredicto-card" id="seccion-veredicto" style="display: none;">
+    <div class="veredicto-header">
+      <h2 id="veredicto-titulo">🎯 Veredicto y Diagnóstico del Incidente</h2>
+      <span class="badge" id="veredicto-badge" style="font-size: 0.95rem; padding: 8px 16px;">Analizando...</span>
+    </div>
+
+    <div class="veredicto-body">
+      <div id="veredicto-mensaje" style="font-size: 1.15rem; font-weight: 500;"></div>
+      
+      <div class="veredicto-highlight" id="veredicto-detalle"></div>
+
+      <div id="veredicto-explicacion-tecnica" style="font-size: 0.9rem; color: var(--text-muted); margin-top: 8px;"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MOTOR DE INFERENCIA EN JAVASCRIPT -->
+<script>
+// --- ESTADO CARGADO DINÁMICAMENTE DESDE LOS ARCHIVOS JSON ---
+let BASE_ORIGINAL = { variables: [], significados: {}, origen_variables: {}, reglas: [] };
+let CASOS_PREDEFINIDOS = {};
+let extensionesActuales = { sospechosos: [], reglas: [] };
+let baseActual = { variables: [], significados: {}, origen_variables: {}, reglas: [] };
+let casoActual = "custom";
+let evidenciaActiva = new Set();
+let consultasActivas = [];
+let consultaSeleccionada = "";
+
+function escaparHTML(valor) {
+  return String(valor)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function normalizarBase(datos) {
+  return {
+    variables: [...(datos.variables || [])],
+    significados: { ...(datos.significados || {}) },
+    origen_variables: { ...(datos.origen_variables || {}) },
+    reglas: (datos.reglas || []).map(regla => ({
+      id: regla.id,
+      desc: regla.descripcion || regla.desc || "",
+      formula: regla.formula,
+      fnc: regla.fnc,
+      origen: regla.origen || "original"
+    }))
+  };
+}
+
+async function solicitarAPI(ruta, opciones = {}) {
+  const respuesta = await fetch(ruta, {
+    ...opciones,
+    headers: { "Content-Type": "application/json", ...(opciones.headers || {}) }
+  });
+  const datos = await respuesta.json();
+  if (!respuesta.ok || datos.ok === false) {
+    throw new Error(datos.error || `Error HTTP ${respuesta.status}`);
+  }
+  return datos;
+}
+
+function aplicarEstadoServidor(datos) {
+  BASE_ORIGINAL = normalizarBase(datos.base_original);
+  baseActual = normalizarBase(datos.base_activa);
+  extensionesActuales = datos.extensiones || { sospechosos: [], reglas: [] };
+  CASOS_PREDEFINIDOS = {};
+  for (const caso of datos.casos || []) CASOS_PREDEFINIDOS[caso.id] = caso;
+  CASOS_PREDEFINIDOS.custom = {
+    id: "custom",
+    nombre: "Modo personalizado",
+    proposito: "Evidencia y consultas libres sobre la base activa.",
+    evidencia: [],
+    consultas: [...baseActual.variables]
+  };
+}
+
+async function cargarDatos() {
+  try {
+    aplicarEstadoServidor(await solicitarAPI("/api/estado"));
+    renderizarMenuCasos();
+    renderizarBaseConocimiento();
+    const primerCaso = CASOS_PREDEFINIDOS.caso_1 ? "caso_1" : Object.keys(CASOS_PREDEFINIDOS)[0];
+    seleccionarCaso(primerCaso || "custom");
+  } catch (error) {
+    document.getElementById("case-selector").innerHTML = `
+      <div class="case-btn" style="border-color: var(--danger);">
+        <div class="case-btn-title"><span>No se pudo cargar la base dinámica</span></div>
+        <div class="case-btn-desc">Inicie la aplicación con <code>python ejecutar.py --servidor 8000</code> y abra <code>http://localhost:8000/index.html</code>.<br>${escaparHTML(error.message)}</div>
+      </div>`;
+  }
+}
+
+// --- MOTOR DE LÓGICA PROPOSICIONAL ---
+class Literal {
+  constructor(variable, positivo = true) {
+    this.variable = variable;
+    this.positivo = positivo;
+  }
+  negado() {
+    return new Literal(this.variable, !this.positivo);
+  }
+  toString() {
+    return this.positivo ? this.variable : `~${this.variable}`;
+  }
+  equals(other) {
+    return this.variable === other.variable && this.positivo === other.positivo;
+  }
+  static desdeTexto(txt) {
+    txt = txt.trim();
+    if (txt.startsWith("~") || txt.startsWith("¬")) {
+      return new Literal(txt.slice(1).trim(), false);
+    }
+    return new Literal(txt, true);
+  }
+}
+
+function clausulaKey(clausula) {
+  return [...clausula].map(l => l.toString()).sort().join("|");
+}
+
+function esTautologia(clausula) {
+  for (let lit of clausula) {
+    if (clausula.some(o => o.variable === lit.variable && o.positivo !== lit.positivo)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function clausulaATexto(clausula) {
+  if (clausula.length === 0) return "□";
+  return [...clausula].sort((a, b) => a.variable.localeCompare(b.variable)).map(l => l.toString()).join(" ∨ ");
+}
+
+// Analizador sintáctico
+function parsearFormula(texto) {
+  const tokens = [];
+  const regex = /\s*(<->|->|[()~&|]|[A-Za-z][A-Za-z0-9_]*)/g;
+  let match;
+  let lastIndex = 0;
+  while ((match = regex.exec(texto)) !== null) {
+    tokens.push(match[1]);
+    lastIndex = regex.lastIndex;
+  }
+  if (texto.slice(lastIndex).trim() !== "") {
+    throw new Error(`Símbolo inválido en fórmula: "${texto.slice(lastIndex).trim()}"`);
+  }
+  if (tokens.length === 0) throw new Error("Fórmula vacía");
+
+  let pos = 0;
+  function actual() { return pos < tokens.length ? tokens[pos] : null; }
+  function aceptar(tok) { if (actual() === tok) { pos++; return true; } return false; }
+
+  function parseBicondicional() {
+    let f = parseImplicacion();
+    while (aceptar("<->")) {
+      let r = parseImplicacion();
+      f = { tipo: "bicondicional", izq: f, der: r };
+    }
+    return f;
+  }
+  function parseImplicacion() {
+    let f = parseDisyuncion();
+    if (aceptar("->")) {
+      let r = parseImplicacion();
+      return { tipo: "implicacion", ant: f, con: r };
+    }
+    return f;
+  }
+  function parseDisyuncion() {
+    let f = parseConjuncion();
+    while (aceptar("|")) {
+      let r = parseConjuncion();
+      f = { tipo: "disyuncion", izq: f, der: r };
+    }
+    return f;
+  }
+  function parseConjuncion() {
+    let f = parseNegacion();
+    while (aceptar("&")) {
+      let r = parseNegacion();
+      f = { tipo: "conjuncion", izq: f, der: r };
+    }
+    return f;
+  }
+  function parseNegacion() {
+    if (aceptar("~")) {
+      return { tipo: "negacion", op: parseNegacion() };
+    }
+    return parsePrimaria();
+  }
+  function parsePrimaria() {
+    if (aceptar("(")) {
+      let f = parseBicondicional();
+      if (!aceptar(")")) throw new Error("Falta paréntesis de cierre ')'");
+      return f;
+    }
+    let tok = actual();
+    if (!tok || ["<->", "->", "&", "|", ")"].includes(tok)) {
+      throw new Error(`Se esperaba variable y se encontró '${tok}'`);
+    }
+    pos++;
+    return { tipo: "variable", nombre: tok };
+  }
+
+  let arbol = parseBicondicional();
+  if (actual() !== null) throw new Error(`Token inesperado: ${actual()}`);
+  return arbol;
+}
+
+function extraerVariablesFormula(arbol, vars = new Set()) {
+  if (!arbol) return vars;
+  if (arbol.tipo === "variable") vars.add(arbol.nombre);
+  if (arbol.op) extraerVariablesFormula(arbol.op, vars);
+  if (arbol.izq) extraerVariablesFormula(arbol.izq, vars);
+  if (arbol.der) extraerVariablesFormula(arbol.der, vars);
+  if (arbol.ant) extraerVariablesFormula(arbol.ant, vars);
+  if (arbol.con) extraerVariablesFormula(arbol.con, vars);
+  return vars;
+}
+
+function sinImplicaciones(f) {
+  if (f.tipo === "variable") return f;
+  if (f.tipo === "negacion") return { tipo: "negacion", op: sinImplicaciones(f.op) };
+  if (f.tipo === "conjuncion") return { tipo: "conjuncion", izq: sinImplicaciones(f.izq), der: sinImplicaciones(f.der) };
+  if (f.tipo === "disyuncion") return { tipo: "disyuncion", izq: sinImplicaciones(f.izq), der: sinImplicaciones(f.der) };
+  if (f.tipo === "implicacion") {
+    return { tipo: "disyuncion", izq: { tipo: "negacion", op: sinImplicaciones(f.ant) }, der: sinImplicaciones(f.con) };
+  }
+  if (f.tipo === "bicondicional") {
+    let i = sinImplicaciones(f.izq);
+    let d = sinImplicaciones(f.der);
+    return {
+      tipo: "conjuncion",
+      izq: { tipo: "disyuncion", izq: { tipo: "negacion", op: i }, der: d },
+      der: { tipo: "disyuncion", izq: { tipo: "negacion", op: d }, der: i }
+    };
+  }
+  return f;
+}
+
+function aNNF(f, negar = false) {
+  if (f.tipo === "variable") return negar ? { tipo: "negacion", op: f } : f;
+  if (f.tipo === "negacion") return aNNF(f.op, !negar);
+  if (f.tipo === "conjuncion") {
+    let tipo = negar ? "disyuncion" : "conjuncion";
+    return { tipo, izq: aNNF(f.izq, negar), der: aNNF(f.der, negar) };
+  }
+  if (f.tipo === "disyuncion") {
+    let tipo = negar ? "conjuncion" : "disyuncion";
+    return { tipo, izq: aNNF(f.izq, negar), der: aNNF(f.der, negar) };
+  }
+  throw new Error("Primero deben eliminarse implicaciones");
+}
+
+function unicasClausulas(lista) {
+  let vistas = new Set();
+  let res = [];
+  for (let c of lista) {
+    if (esTautologia(c)) continue;
+    let k = clausulaKey(c);
+    if (!vistas.has(k)) {
+      vistas.add(k);
+      res.push(c);
+    }
+  }
+  return res;
+}
+
+function distribuir(izq, der) {
+  let res = [];
+  for (let c1 of izq) {
+    for (let c2 of der) {
+      let combinada = [...c1];
+      for (let l of c2) {
+        if (!combinada.some(x => x.equals(l))) combinada.push(l);
+      }
+      res.push(combinada);
+    }
+  }
+  return unicasClausulas(res);
+}
+
+function nnfAFNC(f) {
+  if (f.tipo === "variable") return [[new Literal(f.nombre, true)]];
+  if (f.tipo === "negacion" && f.op.tipo === "variable") return [[new Literal(f.op.nombre, false)]];
+  if (f.tipo === "conjuncion") return unicasClausulas([...nnfAFNC(f.izq), ...nnfAFNC(f.der)]);
+  if (f.tipo === "disyuncion") return distribuir(nnfAFNC(f.izq), nnfAFNC(f.der));
+  throw new Error("Fórmula no en NNF");
+}
+
+function formulaAFNC(formulaArbol) {
+  return nnfAFNC(aNNF(sinImplicaciones(formulaArbol)));
+}
+
+function evaluarFormula(arbol, modelo) {
+  if (arbol.tipo === "variable") return !!modelo[arbol.nombre];
+  if (arbol.tipo === "negacion") return !evaluarFormula(arbol.op, modelo);
+  if (arbol.tipo === "conjuncion") return evaluarFormula(arbol.izq, modelo) && evaluarFormula(arbol.der, modelo);
+  if (arbol.tipo === "disyuncion") return evaluarFormula(arbol.izq, modelo) || evaluarFormula(arbol.der, modelo);
+  if (arbol.tipo === "implicacion") return (!evaluarFormula(arbol.ant, modelo)) || evaluarFormula(arbol.con, modelo);
+  if (arbol.tipo === "bicondicional") return evaluarFormula(arbol.izq, modelo) === evaluarFormula(arbol.der, modelo);
+  return false;
+}
+
+// Algoritmo 1: Enumeración
+function evaluarClausulas(clausulas, modelo) {
+  for (let c of clausulas) {
+    let satisfecha = false;
+    for (let lit of c) {
+      if ((modelo[lit.variable] ? true : false) === lit.positivo) {
+        satisfecha = true;
+        break;
+      }
+    }
+    if (!satisfecha) return false;
+  }
+  return true;
+}
+
+function enumerarModelos(variables, clausulas) {
+  const modelos = [];
+  const n = variables.length;
+  const total = Math.pow(2, n);
+  for (let i = 0; i < total; i++) {
+    let modelo = {};
+    for (let j = 0; j < n; j++) {
+      modelo[variables[j]] = ((i >> j) & 1) === 1;
+    }
+    if (evaluarClausulas(clausulas, modelo)) {
+      modelos.push(modelo);
+    }
+  }
+  return { modelos, total };
+}
+
+// Algoritmo 2: Resolución por refutación
+function resolverPorRefutacion(clausulasBase, soporte = null, etiquetasBase = null, etiquetaSoporte = "Suposición", maxClausulas = 2000) {
+  let clausulas = [];
+  let mapaIndices = new Map();
+  let iniciales = [];
+
+  function agregarInicial(c, origen) {
+    let k = clausulaKey(c);
+    if (mapaIndices.has(k)) return mapaIndices.get(k);
+    clausulas.push(c);
+    let num = clausulas.length;
+    mapaIndices.set(k, num);
+    iniciales.push({ numero: num, clausula: c, origen });
+    return num;
+  }
+
+  let etiquetas = etiquetasBase || clausulasBase.map(() => "Base");
+  let idsBase = clausulasBase.map((c, i) => agregarInicial(c, etiquetas[i]));
+
+  let cola = [];
+  if (soporte === null) {
+    cola = [...idsBase];
+  } else {
+    let idsSoporte = soporte.map(c => agregarInicial(c, etiquetaSoporte));
+    cola = [...idsSoporte];
+  }
+
+  if (mapaIndices.has("")) {
+    return { contradiccion: true, iniciales, pasos: [], total: clausulas.length };
+  }
+
+  let paresProcesados = new Set();
+  let pasos = [];
+
+  while (cola.length > 0) {
+    let idActual = cola.shift();
+    let limite = clausulas.length;
+
+    for (let idOtro = 1; idOtro <= limite; idOtro++) {
+      if (idOtro === idActual) continue;
+      let minId = Math.min(idActual, idOtro);
+      let maxId = Math.max(idActual, idOtro);
+      let parKey = `${minId},${maxId}`;
+      if (paresProcesados.has(parKey)) continue;
+      paresProcesados.add(parKey);
+
+      let c1 = clausulas[idActual - 1];
+      let c2 = clausulas[idOtro - 1];
+
+      for (let lit of c1) {
+        let comp = lit.negado();
+        if (c2.some(l => l.equals(comp))) {
+          let resolvente = [
+            ...c1.filter(l => !l.equals(lit)),
+            ...c2.filter(l => !l.equals(comp))
+          ];
+          let unicos = [];
+          for (let l of resolvente) {
+            if (!unicos.some(u => u.equals(l))) unicos.push(l);
+          }
+          if (esTautologia(unicos)) continue;
+
+          let subsumida = clausulas.some(existente => {
+            return existente.every(el => unicos.some(ul => ul.equals(el)));
+          });
+          if (subsumida) continue;
+
+          clausulas.push(unicos);
+          let idNuevo = clausulas.length;
+          mapaIndices.set(clausulaKey(unicos), idNuevo);
+          pasos.push({
+            numero: pasos.length + 1,
+            padre1: idActual,
+            padre2: idOtro,
+            pivote: lit,
+            resolvente: unicos,
+            idNuevo
+          });
+
+          if (unicos.length === 0) {
+            return { contradiccion: true, iniciales, pasos, total: clausulas.length };
+          }
+          if (clausulas.length >= maxClausulas) {
+            return { contradiccion: false, iniciales, pasos, total: clausulas.length, limite: true };
+          }
+          cola.push(idNuevo);
+        }
+      }
+    }
+  }
+
+  return { contradiccion: false, iniciales, pasos, total: clausulas.length };
+}
+
+function obtenerClausulasEscenario() {
+  let clausulas = [];
+  let etiquetas = [];
+
+  for (let r of baseActual.reglas) {
+    for (let i = 0; i < r.fnc.length; i++) {
+      let suf = r.fnc.length > 1 ? `.${i + 1}` : "";
+      clausulas.push(r.fnc[i].map(txt => Literal.desdeTexto(txt)));
+      etiquetas.push(`${r.id}${suf}`);
+    }
+  }
+
+  for (let ev of evidenciaActiva) {
+    clausulas.push([Literal.desdeTexto(ev)]);
+    etiquetas.push(`Evidencia ${ev}`);
+  }
+
+  return { clausulas, etiquetas };
+}
+
+function diagnosticarConsulta(modelos, consistente, resolucionBase) {
+  if (!consistente || resolucionBase.contradiccion) {
+    return {
+      estado: "CONTRADICCION",
+      titulo: "❌ Resultado de la consulta: contradicción",
+      mensaje: `No se puede decidir “${consultaSeleccionada}”: la base activa y la evidencia son incompatibles.`,
+      detalle: "Se derivó la cláusula vacía (□); no existe ningún modelo que satisfaga toda la información.",
+      tipo: "danger",
+      consulta: consultaSeleccionada
+    };
+  }
+
+  const arbol = parsearFormula(consultaSeleccionada);
+  const valores = modelos.map(modelo => evaluarFormula(arbol, modelo));
+  const estadoLogico = valores.every(Boolean)
+    ? "DEMOSTRADA"
+    : (valores.some(Boolean) ? "INDETERMINADA" : "REFUTADA");
+  const tipo = estadoLogico === "DEMOSTRADA" ? "success" : (estadoLogico === "REFUTADA" ? "danger" : "warning");
+  const detalle = estadoLogico === "DEMOSTRADA"
+    ? `La consulta es verdadera en los ${modelos.length} modelos compatibles.`
+    : (estadoLogico === "REFUTADA"
+      ? `La consulta es falsa en los ${modelos.length} modelos compatibles.`
+      : "La consulta es verdadera en algunos modelos y falsa en otros; falta evidencia para decidirla.");
+
+  if (arbol.tipo === "variable") {
+    const variable = arbol.nombre;
+    const significado = baseActual.significados[variable] || variable;
+    const reglaE1 = baseActual.reglas.find(regla => regla.id === "E1");
+    const sospechosos = reglaE1?.fnc?.[0]?.filter(lit => !lit.startsWith("~")) || [];
+    for (const agregado of extensionesActuales.sospechosos || []) {
+      if (!sospechosos.includes(agregado.variable)) sospechosos.push(agregado.variable);
+    }
+    if (sospechosos.includes(variable)) {
+      const estado = estadoLogico === "DEMOSTRADA" ? "CULPABLE" : (estadoLogico === "REFUTADA" ? "NO_CULPABLE" : "INDETERMINADO");
+      const mensaje = estado === "CULPABLE"
+        ? `${significado}: sí, es el culpable según la evidencia consultada.`
+        : (estado === "NO_CULPABLE"
+          ? `${significado}: no es el culpable según la evidencia consultada.`
+          : `No se puede determinar si ${significado.toLowerCase()}; hay modelos compatibles a favor y en contra.`);
+      return { estado, titulo: `🎯 Resultado sobre el sospechoso ${variable}`, mensaje, detalle, tipo, consulta: variable };
+    }
+    if (variable === "A") {
+      const estado = estadoLogico === "DEMOSTRADA" ? "ACTIVADA" : (estadoLogico === "REFUTADA" ? "NO_ACTIVADA" : "INDETERMINADA");
+      const mensaje = estado === "ACTIVADA" ? "La alarma se activó." : (estado === "NO_ACTIVADA" ? "La alarma no se activó." : "No se puede determinar si la alarma se activó.");
+      return { estado, titulo: "🚨 Resultado sobre la alarma", mensaje, detalle, tipo, consulta: variable };
+    }
+    if (variable === "K") {
+      const estado = estadoLogico === "DEMOSTRADA" ? "USADA" : (estadoLogico === "REFUTADA" ? "NO_USADA" : "INDETERMINADA");
+      const mensaje = estado === "USADA" ? "Se usó una llave." : (estado === "NO_USADA" ? "No se usó una llave." : "No se puede determinar si se usó una llave.");
+      return { estado, titulo: "🔑 Resultado sobre el uso de llave", mensaje, detalle, tipo, consulta: variable };
+    }
+  }
+
+  return {
+    estado: estadoLogico,
+    titulo: "🧠 Resultado de la consulta lógica",
+    mensaje: `El enunciado “${consultaSeleccionada}” quedó ${estadoLogico.toLowerCase()}.`,
+    detalle,
+    tipo,
+    consulta: consultaSeleccionada
+  };
+}
+
+// --- RENDERS UI ---
+
+function renderizarMenuCasos() {
+  const contenedor = document.getElementById("case-selector");
+  contenedor.innerHTML = "";
+  for (const caso of Object.values(CASOS_PREDEFINIDOS)) {
+    const evidencia = new Set(caso.evidencia || []);
+    const anterior = evidenciaActiva;
+    evidenciaActiva = evidencia;
+    const { clausulas } = obtenerClausulasEscenario();
+    const cantidad = enumerarModelos(baseActual.variables, clausulas).modelos.length;
+    evidenciaActiva = anterior;
+    const clase = caso.id === "custom" ? "badge-purple" : (cantidad ? "badge-success" : "badge-danger");
+    const textoModelos = caso.id === "custom" ? "Dinámico" : `${cantidad} modelo${cantidad === 1 ? "" : "s"}${cantidad ? "" : " (□)"}`;
+    const boton = document.createElement("div");
+    boton.className = `case-btn ${caso.id === casoActual ? "active" : ""}`;
+    boton.id = `btn-${caso.id.replaceAll("_", "-")}`;
+    boton.onclick = () => seleccionarCaso(caso.id);
+    boton.innerHTML = `
+      <div class="case-btn-title">
+        <span>${escaparHTML(caso.nombre)}</span>
+        <span class="badge ${clase}">${escaparHTML(textoModelos)}</span>
+      </div>
+      <div class="case-btn-desc">${escaparHTML(caso.proposito || "")}</div>`;
+    contenedor.appendChild(boton);
+  }
+}
+
+function etiquetaOrigen(origen) {
+  if (origen === "agregada") return '<span class="badge badge-purple">Agregada</span>';
+  if (origen === "original_modificada") return '<span class="badge badge-warning">Original ampliada</span>';
+  return '<span class="badge badge-accent">Original</span>';
+}
+
+function renderizarBaseConocimiento() {
+  const variables = document.getElementById("tabla-variables");
+  variables.innerHTML = baseActual.variables.map(variable => `
+    <tr>
+      <td class="mono"><strong>${escaparHTML(variable)}</strong></td>
+      <td>${escaparHTML(baseActual.significados[variable] || `Variable ${variable}`)}</td>
+      <td>${etiquetaOrigen(baseActual.origen_variables[variable])}</td>
+    </tr>`).join("");
+
+  const reglas = document.getElementById("tabla-reglas");
+  reglas.innerHTML = baseActual.reglas.map(regla => `
+    <tr>
+      <td class="mono"><strong>${escaparHTML(regla.id)}</strong></td>
+      <td>
+        <div>${escaparHTML(regla.desc)}</div>
+        <code>${escaparHTML(regla.formula)}</code>
+      </td>
+      <td>${etiquetaOrigen(regla.origen)}</td>
+    </tr>`).join("");
+
+  const total = (extensionesActuales.sospechosos || []).length + (extensionesActuales.reglas || []).length;
+  document.getElementById("badge-extensiones").textContent = `${total} extensión${total === 1 ? "" : "es"}`;
+  renderizarBadgesBase();
+}
+
+function renderizarBadgesBase() {
+  document.getElementById("badge-variables").textContent = `${baseActual.variables.length} Variables`;
+  let totalClausulas = baseActual.reglas.reduce((acc, r) => acc + r.fnc.length, 0);
+  document.getElementById("badge-clausulas").textContent = `${totalClausulas} Cláusulas CNF`;
+}
+
+function renderizarEvidenciaChips() {
+  let contenedor = document.getElementById("evidencia-chips");
+  contenedor.innerHTML = "";
+  
+  let sugeridos = ["A", "~A", "K", "~K", "AD", "AE", "D", "E", "F", "N", "~N"];
+  for (let v of baseActual.variables) {
+    if (!sugeridos.includes(v)) sugeridos.push(v);
+  }
+
+  for (let lit of sugeridos) {
+    let chip = document.createElement("span");
+    chip.className = `chip ${evidenciaActiva.has(lit) ? "active" : ""}`;
+    chip.textContent = lit;
+    chip.onclick = () => toggleEvidencia(lit);
+    contenedor.appendChild(chip);
+  }
+
+  let resumen = [...evidenciaActiva].join(", ") || "ninguna";
+  document.getElementById("evidencia-resumen").textContent = `Evidencia: ${resumen}`;
+}
+
+function renderizarSelectorConsultas() {
+  let select = document.getElementById("select-consulta");
+  select.innerHTML = "";
+  for (let c of consultasActivas) {
+    let opt = document.createElement("option");
+    opt.value = c;
+    opt.textContent = c;
+    if (c === consultaSeleccionada) opt.selected = true;
+    select.appendChild(opt);
+  }
+  document.getElementById("input-consulta-custom").value = consultaSeleccionada;
+}
+
+function ocultarSeccionesResultado() {
+  document.getElementById("seccion-enumeracion").style.display = "none";
+  document.getElementById("seccion-refutacion").style.display = "none";
+  document.getElementById("seccion-veredicto").style.display = "none";
+
+  let badgeCons = document.getElementById("badge-consistencia");
+  badgeCons.className = "badge badge-warning";
+  badgeCons.textContent = "Esperando consulta (presione Probar)";
+}
+
+function renderizarEnumeracion() {
+  const { clausulas } = obtenerClausulasEscenario();
+  const { modelos, total } = enumerarModelos(baseActual.variables, clausulas);
+  const consistente = modelos.length > 0;
+
+  document.getElementById("enum-stats").textContent = `${modelos.length} modelos compatibles de ${total} asignaciones (2^${baseActual.variables.length})`;
+
+  let contenedorConsultas = document.getElementById("enum-consultas-grid");
+  contenedorConsultas.innerHTML = "";
+  
+  // Agregar consulta actual si no está en la lista de tarjetas
+  let listaMostrar = [...consultasActivas];
+  if (!listaMostrar.includes(consultaSeleccionada)) {
+    listaMostrar.unshift(consultaSeleccionada);
+  }
+
+  for (let cText of listaMostrar) {
+    let estado = "INDETERMINADA";
+    let badgeClass = "badge-warning";
+    try {
+      let arbol = parsearFormula(cText);
+      let vals = modelos.map(m => evaluarFormula(arbol, m));
+      if (!consistente) {
+        estado = "INCONSISTENTE";
+        badgeClass = "badge-danger";
+      } else if (vals.every(v => v === true)) {
+        estado = "DEMOSTRADA";
+        badgeClass = "badge-success";
+      } else if (!vals.some(v => v === true)) {
+        estado = "REFUTADA";
+        badgeClass = "badge-danger";
+      }
+    } catch (e) {
+      estado = "ERROR";
+      badgeClass = "badge-danger";
+    }
+
+    let esActiva = (cText === consultaSeleccionada);
+    let card = document.createElement("div");
+    card.style.background = esActiva ? "rgba(56, 189, 248, 0.12)" : "var(--bg-main)";
+    card.style.border = esActiva ? "1px solid var(--accent)" : "1px solid var(--border)";
+    card.style.borderRadius = "6px";
+    card.style.padding = "8px 12px";
+    card.style.display = "flex";
+    card.style.justifyContent = "space-between";
+    card.style.alignItems = "center";
+    card.innerHTML = `
+      <span class="mono" style="font-weight: 600;">${cText} ${esActiva ? "★" : ""}</span>
+      <span class="badge ${badgeClass}" style="font-size: 0.75rem;">${estado}</span>
+    `;
+    contenedorConsultas.appendChild(card);
+  }
+
+  // Tabla modelos
+  let headRow = document.getElementById("tabla-modelos-head");
+  headRow.innerHTML = "<th>#</th>" + baseActual.variables.map(v => `<th style="text-align: center;">${v}</th>`).join("") + "<th>Compatible</th>";
+
+  let body = document.getElementById("tabla-modelos-body");
+  body.innerHTML = "";
+
+  let soloCompatibles = document.getElementById("check-solo-compatibles").checked;
+  let filaNum = 1;
+
+  if (soloCompatibles) {
+    if (modelos.length === 0) {
+      body.innerHTML = `<tr><td colspan="${baseActual.variables.length + 2}" style="text-align: center; color: var(--danger); padding: 18px;">⚠️ No hay asignaciones compatibles (Base Inconsistente / Contradicción □).</td></tr>`;
+    } else {
+      for (let m of modelos) {
+        let tds = baseActual.variables.map(v => {
+          let val = m[v] ? 1 : 0;
+          return `<td style="text-align: center;"><span class="val-box box-${val}">${val}</span></td>`;
+        }).join("");
+        body.innerHTML += `<tr><td class="mono">${filaNum++}</td>${tds}<td><span class="badge badge-success" style="font-size: 0.7rem;">SÍ</span></td></tr>`;
+      }
+    }
+  } else {
+    let max = Math.min(total, 128);
+    for (let i = 0; i < max; i++) {
+      let m = {};
+      for (let j = 0; j < baseActual.variables.length; j++) {
+        m[baseActual.variables[j]] = ((i >> j) & 1) === 1;
+      }
+      let comp = evaluarClausulas(clausulas, m);
+      let tds = baseActual.variables.map(v => {
+        let val = m[v] ? 1 : 0;
+        return `<td style="text-align: center;"><span class="val-box box-${val}">${val}</span></td>`;
+      }).join("");
+      body.innerHTML += `<tr><td class="mono">${i + 1}</td>${tds}<td><span class="badge ${comp ? "badge-success" : "badge-danger"}" style="font-size: 0.7rem;">${comp ? "SÍ" : "NO"}</span></td></tr>`;
+    }
+  }
+
+  return { modelos, consistente };
+}
+
+function renderizarRefutacion() {
+  const { clausulas, etiquetas } = obtenerClausulasEscenario();
+  let resBase = resolverPorRefutacion(clausulas, null, etiquetas);
+  
+  let consulta = consultaSeleccionada || "D";
+  let negacionFnc = [];
+  try {
+    let arbol = parsearFormula(consulta);
+    negacionFnc = formulaAFNC({ tipo: "negacion", op: arbol });
+  } catch (e) {
+    negacionFnc = [[new Literal(consulta, false)]];
+  }
+
+  let refutacion = resolverPorRefutacion(
+    clausulas,
+    negacionFnc,
+    etiquetas,
+    `Negación consulta: ~(${consulta})`
+  );
+
+  let badge = document.getElementById("refutacion-resultado-badge");
+  if (resBase.contradiccion) {
+    badge.className = "badge badge-danger";
+    badge.textContent = "KB INCONSISTENTE (Contradicción □ en la base)";
+  } else if (refutacion.contradiccion) {
+    badge.className = "badge badge-success";
+    badge.textContent = `Consulta "${consulta}" DEMOSTRADA (Se derivó □)`;
+  } else {
+    badge.className = "badge badge-warning";
+    badge.textContent = `Consulta "${consulta}" NO demostrada por refutación`;
+  }
+
+  let tInit = document.getElementById("tabla-clausulas-iniciales");
+  tInit.innerHTML = "";
+  for (let c of refutacion.iniciales) {
+    tInit.innerHTML += `
+      <tr>
+        <td class="mono" style="font-weight: 600;">C${c.numero}</td>
+        <td class="mono">${clausulaATexto(c.clausula)}</td>
+        <td style="font-size: 0.75rem; color: var(--text-muted);">${c.origen}</td>
+      </tr>
+    `;
+  }
+
+  let tPasos = document.getElementById("tabla-pasos-resolucion");
+  tPasos.innerHTML = "";
+  if (refutacion.pasos.length === 0) {
+    tPasos.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--text-muted);">No se generaron nuevos resolventes o la base saturó inmediatamente.</td></tr>`;
+  } else {
+    for (let p of refutacion.pasos) {
+      let esVacia = p.resolvente.length === 0;
+      let clase = esVacia ? "step-vacia" : "";
+      tPasos.innerHTML += `
+        <tr class="${clase}">
+          <td class="mono">R${p.numero}</td>
+          <td class="mono">C${p.padre1} + C${p.padre2}</td>
+          <td class="mono" style="color: var(--accent);">${p.pivote.variable}</td>
+          <td class="mono"><strong>C${p.idNuevo}:</strong> ${clausulaATexto(p.resolvente)}</td>
+        </tr>
+      `;
+    }
+  }
+
+  return { resBase, refutacion };
+}
+
+function renderizarVeredicto(diagnostico) {
+  let card = document.getElementById("seccion-veredicto");
+  card.className = `veredicto-card veredicto-${diagnostico.tipo === "success" ? "culpable" : (diagnostico.tipo === "danger" ? "contradiccion" : "multiples")}`;
+
+  document.getElementById("veredicto-titulo").innerHTML = diagnostico.titulo;
+  
+  let badge = document.getElementById("veredicto-badge");
+  badge.className = `badge badge-${diagnostico.tipo}`;
+  badge.textContent = diagnostico.estado;
+
+  document.getElementById("veredicto-mensaje").textContent = diagnostico.mensaje;
+  document.getElementById("veredicto-detalle").textContent = diagnostico.detalle;
+
+  let tecnica = document.getElementById("veredicto-explicacion-tecnica");
+  if (diagnostico.estado === "CONTRADICCION") {
+    tecnica.innerHTML = "<strong>Demostración formal:</strong> La saturación de la base por el algoritmo de resolución derivó la cláusula vacía <code>□</code>. Ninguna asignación de verdad satisface el conjunto de cláusulas.";
+  } else {
+    const consulta = escaparHTML(diagnostico.consulta);
+    tecnica.innerHTML = diagnostico.tipo === "warning"
+      ? `<strong>Demostración formal:</strong> <code>${consulta}</code> es verdadera en algunos modelos compatibles y falsa en otros; por eso la respuesta es indeterminada.`
+      : `<strong>Demostración formal:</strong> la clasificación de <code>${consulta}</code> coincide en todos los modelos compatibles y se contrasta mediante resolución por refutación.`;
+  }
+}
+
+// --- FUNCIÓN PRINCIPAL DE EJECUCIÓN AL PRESIONAR "PROBAR" ---
+function ejecutarConsulta() {
+  let valCustom = document.getElementById("input-consulta-custom").value.trim();
+  if (valCustom) {
+    consultaSeleccionada = valCustom;
+  } else {
+    consultaSeleccionada = document.getElementById("select-consulta").value || "D";
+  }
+
+  // 1. Mostrar las secciones de resolución y veredicto
+  document.getElementById("seccion-enumeracion").style.display = "flex";
+  document.getElementById("seccion-refutacion").style.display = "flex";
+  document.getElementById("seccion-veredicto").style.display = "flex";
+
+  // 2. Ejecutar inferencias
+  const { modelos, consistente } = renderizarEnumeracion();
+  const { resBase } = renderizarRefutacion();
+  const diagnostico = diagnosticarConsulta(modelos, consistente, resBase);
+
+  // 3. Renderizar veredicto y actualizar badges
+  renderizarVeredicto(diagnostico);
+
+  let badgeCons = document.getElementById("badge-consistencia");
+  if (consistente) {
+    badgeCons.className = "badge badge-success";
+    badgeCons.textContent = `Consistente (${modelos.length} mod)`;
+  } else {
+    badgeCons.className = "badge badge-danger";
+    badgeCons.textContent = "Inconsistente (□)";
+  }
+
+  // 4. Desplazar suavemente hacia el veredicto
+  document.getElementById("seccion-veredicto").scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+// --- EVENTOS DEL USUARIO ---
+function seleccionarCaso(id) {
+  if (!CASOS_PREDEFINIDOS[id]) return;
+  casoActual = id;
+  document.querySelectorAll(".case-btn").forEach(b => b.classList.remove("active"));
+  let btn = document.getElementById(`btn-${id.replace("_", "-")}`);
+  if (btn) btn.classList.add("active");
+
+  let c = CASOS_PREDEFINIDOS[id];
+  evidenciaActiva = new Set(c.evidencia);
+  consultasActivas = [...c.consultas];
+  consultaSeleccionada = consultasActivas[0] || "D";
+
+  renderizarEvidenciaChips();
+  renderizarSelectorConsultas();
+  renderizarBadgesBase();
+
+  // Ocultar resultados hasta que el usuario presione "Probar"
+  ocultarSeccionesResultado();
+}
+
+function activarModoPersonalizado(consultaPreferida = "") {
+  renderizarMenuCasos();
+  renderizarBaseConocimiento();
+  seleccionarCaso("custom");
+  if (consultaPreferida && consultasActivas.includes(consultaPreferida)) {
+    consultaSeleccionada = consultaPreferida;
+    renderizarSelectorConsultas();
+  }
+}
+
+function seleccionarConsultaDeSelect() {
+  consultaSeleccionada = document.getElementById("select-consulta").value;
+  document.getElementById("input-consulta-custom").value = consultaSeleccionada;
+}
+
+function toggleEvidencia(lit) {
+  if (evidenciaActiva.has(lit)) {
+    evidenciaActiva.delete(lit);
+  } else {
+    let comp = lit.startsWith("~") ? lit.slice(1) : `~${lit}`;
+    evidenciaActiva.delete(comp);
+    evidenciaActiva.add(lit);
+  }
+  document.querySelectorAll(".case-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById("btn-caso-custom").classList.add("active");
+  
+  renderizarEvidenciaChips();
+  ocultarSeccionesResultado();
+}
+
+function aplicarEvidenciaCustom() {
+  let val = document.getElementById("input-evidencia-custom").value.trim();
+  if (!val) return;
+  let partes = val.split(",").map(p => p.trim()).filter(p => p.length > 0);
+  evidenciaActiva = new Set(partes);
+  document.querySelectorAll(".case-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById("btn-caso-custom").classList.add("active");
+  
+  renderizarEvidenciaChips();
+  ocultarSeccionesResultado();
+}
+
+function insertarSimbolo(sym) {
+  let input = document.getElementById("input-regla-formula");
+  input.value += ` ${sym} `;
+  input.focus();
+}
+
+async function agregarSospechosoClick() {
+  let v = document.getElementById("input-sospechoso-var").value.trim().toUpperCase();
+  let nom = document.getElementById("input-sospechoso-nombre").value.trim();
+  let actE1E2 = document.getElementById("check-actualizar-e1-e2").checked;
+
+  if (!v || !nom) {
+    alert("Por favor ingrese la letra de variable y el nombre del sospechoso.");
+    return;
+  }
+  try {
+    const datos = await solicitarAPI("/api/sospechosos", {
+      method: "POST",
+      body: JSON.stringify({ variable: v, nombre: nom, actualizar_reglas_culpable: actE1E2 })
+    });
+    aplicarEstadoServidor(datos);
+    document.getElementById("input-sospechoso-var").value = "";
+    document.getElementById("input-sospechoso-nombre").value = "";
+    activarModoPersonalizado(v);
+    alert(`¡Sospechoso ${nom} (${v}) guardado en la base extendida y listo para consultar!`);
+  } catch (error) {
+    alert(`No se pudo añadir el sospechoso: ${error.message}`);
+  }
+}
+
+function parsearSignificados(texto) {
+  const resultado = {};
+  if (!texto.trim()) return resultado;
+  for (const entrada of texto.split(";")) {
+    const indice = entrada.indexOf("=");
+    if (indice < 1 || !entrada.slice(indice + 1).trim()) {
+      throw new Error("Use el formato VARIABLE=significado; OTRA=significado.");
+    }
+    resultado[entrada.slice(0, indice).trim().toUpperCase()] = entrada.slice(indice + 1).trim();
+  }
+  return resultado;
+}
+
+async function agregarReglaClick() {
+  let id = document.getElementById("input-regla-id").value.trim().toUpperCase();
+  let desc = document.getElementById("input-regla-desc").value.trim();
+  let formula = document.getElementById("input-regla-formula").value.trim();
+  let textoSignificados = document.getElementById("input-regla-significados").value.trim();
+
+  if (!id || !formula) {
+    alert("Por favor ingrese el ID y la fórmula lógica de la regla.");
+    return;
+  }
+  try {
+    parsearFormula(formula);
+    const datos = await solicitarAPI("/api/reglas", {
+      method: "POST",
+      body: JSON.stringify({
+        id,
+        descripcion: desc,
+        formula,
+        significados: parsearSignificados(textoSignificados)
+      })
+    });
+    aplicarEstadoServidor(datos);
+    document.getElementById("input-regla-id").value = "";
+    document.getElementById("input-regla-desc").value = "";
+    document.getElementById("input-regla-formula").value = "";
+    document.getElementById("input-regla-significados").value = "";
+    activarModoPersonalizado();
+    alert(`¡Regla ${id} guardada, convertida a FNC e incorporada a la base activa!`);
+  } catch (e) {
+    alert(`No se pudo añadir la regla: ${e.message}`);
+  }
+}
+
+function validarConsistenciaClick() {
+  const { clausulas, etiquetas } = obtenerClausulasEscenario();
+  const res = resolverPorRefutacion(clausulas, null, etiquetas);
+  const { modelos, total } = enumerarModelos(baseActual.variables, clausulas);
+
+  if (res.contradiccion || modelos.length === 0) {
+    alert(`❌ VALIDACIÓN DE CONSISTENCIA:\n\nEstado: INCONSISTENTE (Contradicción detectada)\nSe derivó la cláusula vacía (□).\nHay 0 modelos compatibles.`);
+  } else {
+    alert(`✅ VALIDACIÓN DE CONSISTENCIA:\n\nEstado: CONSISTENTE\nSe encontraron ${modelos.length} modelos compatibles de ${total} asignaciones posibles.\nNo se generó la cláusula vacía.`);
+  }
+}
+
+async function restablecerBaseOriginal() {
+  if (!confirm("¿Desea borrar todas las extensiones y regresar a la base original?")) return;
+  try {
+    const datos = await solicitarAPI("/api/restablecer", {
+      method: "POST",
+      body: JSON.stringify({})
+    });
+    aplicarEstadoServidor(datos);
+    renderizarMenuCasos();
+    renderizarBaseConocimiento();
+    seleccionarCaso(CASOS_PREDEFINIDOS.caso_1 ? "caso_1" : "custom");
+    alert("La base activa volvió a su estado original. El archivo original nunca fue modificado.");
+  } catch (error) {
+    alert(`No se pudo restablecer la base: ${error.message}`);
+  }
+}
+
+window.onload = cargarDatos;
+</script>
+
+</body>
+</html>

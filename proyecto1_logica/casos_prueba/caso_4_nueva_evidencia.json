@@ -1,0 +1,26 @@
+{
+  "id": "caso_4",
+  "nombre": "Nueva evidencia cambia la respuesta",
+  "proposito": "Al agregar ~D y ~E, la respuesta sobre Fabián pasa de indeterminada a demostrada.",
+  "evidencia": [
+    "~D",
+    "~E"
+  ],
+  "consultas": [
+    "D",
+    "E",
+    "F",
+    "N",
+    "K",
+    "AD"
+  ],
+  "modelos_esperados": 4,
+  "esperados": {
+    "D": "REFUTADA",
+    "E": "REFUTADA",
+    "F": "DEMOSTRADA",
+    "N": "DEMOSTRADA",
+    "K": "REFUTADA",
+    "AD": "INDETERMINADA"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "id": "caso_3",
+  "nombre": "Información contradictoria",
+  "proposito": "La evidencia K contradice lo que se deduce de los testimonios, la alarma y E6.",
+  "evidencia": [
+    "K"
+  ],
+  "consultas": [
+    "D"
+  ],
+  "modelos_esperados": 0,
+  "esperados": {}
+}

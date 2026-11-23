@@ -1,0 +1,25 @@
+{
+  "id": "caso_2",
+  "nombre": "Varias explicaciones compatibles",
+  "proposito": "Sin evidencia adicional, Diego, Elena y Fabián siguen siendo compatibles.",
+  "evidencia": [],
+  "consultas": [
+    "D",
+    "E",
+    "F",
+    "N",
+    "K",
+    "A",
+    "F -> ~K"
+  ],
+  "modelos_esperados": 12,
+  "esperados": {
+    "D": "INDETERMINADA",
+    "E": "INDETERMINADA",
+    "F": "INDETERMINADA",
+    "N": "DEMOSTRADA",
+    "K": "REFUTADA",
+    "A": "DEMOSTRADA",
+    "F -> ~K": "DEMOSTRADA"
+  }
+}

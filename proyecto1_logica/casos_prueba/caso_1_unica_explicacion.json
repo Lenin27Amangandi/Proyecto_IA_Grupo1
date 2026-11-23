@@ -1,0 +1,28 @@
+{
+  "id": "caso_1",
+  "nombre": "Única explicación compatible",
+  "proposito": "Los registros descartan a Elena y Fabián y confirman las autorizaciones: queda un único modelo.",
+  "evidencia": [
+    "~E",
+    "~F",
+    "AD",
+    "AE"
+  ],
+  "consultas": [
+    "D",
+    "E",
+    "F",
+    "N",
+    "K",
+    "A"
+  ],
+  "modelos_esperados": 1,
+  "esperados": {
+    "D": "DEMOSTRADA",
+    "E": "REFUTADA",
+    "F": "REFUTADA",
+    "N": "DEMOSTRADA",
+    "K": "REFUTADA",
+    "A": "DEMOSTRADA"
+  }
+}

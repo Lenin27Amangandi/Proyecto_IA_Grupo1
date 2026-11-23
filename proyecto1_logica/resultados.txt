@@ -1,0 +1,70 @@
+
+==============================================================================
+CASO_1: Única explicación compatible
+Propósito: Los registros descartan a Elena y Fabián y confirman las autorizaciones: queda un único modelo.
+Evidencia: ~E, ~F, AD, AE
+
+Enumeración: CONSISTENTE; 1 modelos de 256 asignaciones.
+Resolución: CONSISTENTE; 37 cláusulas al saturar.
+
+DIAGNÓSTICO EXPLICITO:
+  * La base de conocimiento es consistente y se encontró un culpable: Diego tomó la laptop (D).
+
+Consultas:
+  D                enumeración=DEMOSTRADA     resolución=DEMOSTRADA     coinciden=sí
+  E                enumeración=REFUTADA       resolución=REFUTADA       coinciden=sí
+  F                enumeración=REFUTADA       resolución=REFUTADA       coinciden=sí
+  N                enumeración=DEMOSTRADA     resolución=DEMOSTRADA     coinciden=sí
+  K                enumeración=REFUTADA       resolución=REFUTADA       coinciden=sí
+  A                enumeración=DEMOSTRADA     resolución=DEMOSTRADA     coinciden=sí
+
+==============================================================================
+CASO_2: Varias explicaciones compatibles
+Propósito: Sin evidencia adicional, Diego, Elena y Fabián siguen siendo compatibles.
+Evidencia: (ninguna)
+
+Enumeración: CONSISTENTE; 12 modelos de 256 asignaciones.
+Resolución: CONSISTENTE; 49 cláusulas al saturar.
+
+DIAGNÓSTICO EXPLICITO:
+  * La base de conocimiento es consistente y no es posible encontrar un único culpable (el estado de la base llega a 3 posibles soluciones: Fabián tomó la laptop (F), Elena tomó la laptop (E), Diego tomó la laptop (D)). Falta información o evidencia para discriminar entre ellos.
+
+Consultas:
+  D                enumeración=INDETERMINADA  resolución=INDETERMINADA  coinciden=sí
+  E                enumeración=INDETERMINADA  resolución=INDETERMINADA  coinciden=sí
+  F                enumeración=INDETERMINADA  resolución=INDETERMINADA  coinciden=sí
+  N                enumeración=DEMOSTRADA     resolución=DEMOSTRADA     coinciden=sí
+  K                enumeración=REFUTADA       resolución=REFUTADA       coinciden=sí
+  A                enumeración=DEMOSTRADA     resolución=DEMOSTRADA     coinciden=sí
+  F -> ~K          enumeración=DEMOSTRADA     resolución=DEMOSTRADA     coinciden=sí
+
+==============================================================================
+CASO_3: Información contradictoria
+Propósito: La evidencia K contradice lo que se deduce de los testimonios, la alarma y E6.
+Evidencia: K
+
+Enumeración: INCONSISTENTE; 0 modelos de 256 asignaciones.
+Resolución: INCONSISTENTE; 77 cláusulas al saturar.
+
+DIAGNÓSTICO EXPLICITO:
+  * Se llega a una contradicción (se derivó la cláusula vacía □). La base de conocimiento es inconsistente y la evidencia o reglas son incompatibles.
+La base es contradictoria; no se clasifican consultas.
+
+==============================================================================
+CASO_4: Nueva evidencia cambia la respuesta
+Propósito: Al agregar ~D y ~E, la respuesta sobre Fabián pasa de indeterminada a demostrada.
+Evidencia: ~D, ~E
+
+Enumeración: CONSISTENTE; 4 modelos de 256 asignaciones.
+Resolución: CONSISTENTE; 45 cláusulas al saturar.
+
+DIAGNÓSTICO EXPLICITO:
+  * La base de conocimiento es consistente y se encontró un culpable: Fabián tomó la laptop (F).
+
+Consultas:
+  D                enumeración=REFUTADA       resolución=REFUTADA       coinciden=sí
+  E                enumeración=REFUTADA       resolución=REFUTADA       coinciden=sí
+  F                enumeración=DEMOSTRADA     resolución=DEMOSTRADA     coinciden=sí
+  N                enumeración=DEMOSTRADA     resolución=DEMOSTRADA     coinciden=sí
+  K                enumeración=REFUTADA       resolución=REFUTADA       coinciden=sí
+  AD               enumeración=INDETERMINADA  resolución=INDETERMINADA  coinciden=sí

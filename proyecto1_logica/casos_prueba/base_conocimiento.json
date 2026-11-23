@@ -1,0 +1,63 @@
+{
+  "variables": ["D", "E", "F", "N", "K", "A", "AD", "AE"],
+  "significados": {
+    "D": "Diego tomó la laptop",
+    "E": "Elena tomó la laptop",
+    "F": "Fabián tomó la laptop",
+    "N": "La laptop fue tomada después de las 18:00",
+    "K": "Se usó una llave",
+    "A": "La alarma se activó",
+    "AD": "Diego es una persona autorizada",
+    "AE": "Elena es una persona autorizada"
+  },
+  "reglas": [
+    {
+      "id": "E1",
+      "descripcion": "Alguien tomó la laptop y fue Diego, Elena o Fabián.",
+      "formula": "D | E | F",
+      "fnc": [["D", "E", "F"]]
+    },
+    {
+      "id": "E2",
+      "descripcion": "Fue una sola persona.",
+      "formula": "~(D & E) & ~(D & F) & ~(E & F)",
+      "fnc": [["~D", "~E"], ["~D", "~F"], ["~E", "~F"]]
+    },
+    {
+      "id": "E3",
+      "descripcion": "Un retiro posterior a las 18:00 activa la alarma.",
+      "formula": "N -> A",
+      "fnc": [["~N", "A"]]
+    },
+    {
+      "id": "E4",
+      "descripcion": "Si se usó llave, el responsable fue Diego o Elena.",
+      "formula": "K -> (D | E)",
+      "fnc": [["~K", "D", "E"]]
+    },
+    {
+      "id": "E5",
+      "descripcion": "Con llave, quien retira debe estar autorizado.",
+      "formula": "K -> ((D -> AD) & (E -> AE))",
+      "fnc": [["~K", "~D", "AD"], ["~K", "~E", "AE"]]
+    },
+    {
+      "id": "E6",
+      "descripcion": "Si la alarma se activó, no se usó llave.",
+      "formula": "A -> ~K",
+      "fnc": [["~K", "~A"]]
+    },
+    {
+      "id": "E7",
+      "descripcion": "Exactamente uno de los tres testimonios es falso.",
+      "formula": "exactamente_dos(~D, N, D)",
+      "fnc": [["~D", "N"], ["D", "N"]]
+    },
+    {
+      "id": "E8",
+      "descripcion": "La alarma solo se activa después de las 18:00.",
+      "formula": "A -> N",
+      "fnc": [["~A", "N"]]
+    }
+  ]
+}
